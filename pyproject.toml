@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "passwordvaultconsole"
+version = "0.1.0"
+description = ""
+authors = ["willem445 <willh445447@hotmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Pygments = "^2.10.0"
+prompt-toolkit = "^3.0.20"
+SQLAlchemy = "^1.4.23"
+argon2-cffi = "^21.1.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

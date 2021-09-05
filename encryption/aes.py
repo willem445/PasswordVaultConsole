@@ -24,10 +24,10 @@ class Aes(Encryption):
         iv = data[16:32]
         cipherbytes = data[32:48]
 
-        password = PBKDF2(passphrase, salt, 32, 2500)
+        password = PBKDF2(passphrase, salt, (self.keysize / 8), self.iterations)
 
         cipher = AES.new(password, AES.MODE_CBC, IV=iv)
         byte_string = cipher.decrypt(cipherbytes)
-        plaintext = unpad(byte_string, 16, 'pkcs7').decode("utf-8")
+        plaintext = unpad(byte_string, (self.blocksize / 8), 'pkcs7').decode("utf-8")
 
         return plaintext
