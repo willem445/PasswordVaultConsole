@@ -6,7 +6,8 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit import prompt
 import database
 from services import authenticate
-from models import AuthenticateResult
+from models import AuthenticateResult, LogoutResult
+from console import ConsoleState
 
 
 sql_completer = NestedCompleter.from_nested_dict({
@@ -30,11 +31,14 @@ style = Style.from_dict(
 )
 
 
+state = ConsoleState()
+
+
 def login(session):
     username = session.prompt("Username: ")
     password = session.prompt("Password: ", is_password=True)
 
-    result, user = authenticate(username, password, None)
+    result = state.login(username, password)
 
     if result == AuthenticateResult.UsernameDoesNotExist:
         print(f'Username: {username} does not exist!')
@@ -45,7 +49,15 @@ def login(session):
     elif result == AuthenticateResult.Successful:
         print("Success!")
 
+def logout(session):
+    result = state.logout()
 
+    if not state.is_logged_in():
+        print("Must login first!")
+    elif result == LogoutResult.Failed:
+        print("Logout failed!")
+    elif result == LogoutResult.Success:
+        print("Logged out.")
 
 def main():
     session = PromptSession(
@@ -62,6 +74,8 @@ def main():
 
         if text == 'login':
             login(session)
+        elif text == 'logout':
+            logout(session)
         elif text == 'exit':
             break
 

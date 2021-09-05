@@ -12,6 +12,10 @@ class AuthenticateResult(IntEnum):
     Successful = 2,
     Failed = 3
 
+class LogoutResult(IntEnum):
+    Success = 1,
+    Failed = 2
+
 
 class UserEncryptedData(object):
 
