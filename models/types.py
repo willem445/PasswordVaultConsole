@@ -1,6 +1,11 @@
 from enum import IntEnum
 
 
+class Mac(IntEnum):
+    Unknown = 0,
+    HMACSHA256 = 1,
+    HMACSHA512 = 2
+
 class KeyDerivationAlgorithm(IntEnum):
     Argon2Id = 0,
     Pbkdf2 = 1,

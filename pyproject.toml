@@ -10,8 +10,10 @@ Pygments = "^2.10.0"
 prompt-toolkit = "^3.0.20"
 SQLAlchemy = "^1.4.23"
 argon2-cffi = "^21.1.0"
+pycryptodome = "^3.10.1"
 
 [tool.poetry.dev-dependencies]
+yapf = "^0.31.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
