@@ -1,5 +1,6 @@
 from .master_password import verify_password, un_flatten_hash
 from .key_derivation_service import derive_key
+from .encryption_service import decrypt
 from database import get_user
 from models import MasterPasswordParameters, KeyDerivationParameters, AuthenticateResult, User
 from typing import Tuple
@@ -35,6 +36,8 @@ def authenticate(username, password, params) -> Tuple[AuthenticateResult, User]:
 
     if valid:
         authenticate_result = AuthenticateResult.Successful
+
+        ran_key = decrypt(user.encrypted_key, password)
 
         # TODO - create valid User object with encryption parameters
     else:

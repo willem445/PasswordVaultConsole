@@ -8,7 +8,14 @@ def verify_integrity(mac: Mac, key: bytes, cipher: bytes, salt_size_bits: int, i
     pass
 
 def get_hmac_hash_size_in_bits(mac: Mac):
-    pass
+    if mac == Mac.HMACSHA256:
+        return 256
+    elif mac == Mac.HMACSHA512:
+        return 512
 
 def get_hmac_key_size_in_bits(mac: Mac):
-    pass
+    if mac == Mac.HMACSHA256:
+        return 256
+    elif mac == Mac.HMACSHA512:
+        return 512
+        

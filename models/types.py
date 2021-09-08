@@ -6,6 +6,15 @@ class Mac(IntEnum):
     HMACSHA256 = 1,
     HMACSHA512 = 2
 
+class CipherSuite(IntEnum):
+    Unknown = 0,
+    Aes256CfbPkcs7 = 1,
+    Aes128CfbPkcs7 = 2,
+    Rijndael256CbcPkcs7 = 3,
+    Rijndael128CbcPkcs7 = 4,
+    Aes256CbcPkcs7 = 5,
+    Aes128CbcPkcs7 = 6,
+
 class KeyDerivationAlgorithm(IntEnum):
     Argon2Id = 0,
     Pbkdf2 = 1,
