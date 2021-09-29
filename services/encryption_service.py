@@ -5,7 +5,7 @@ import base64
 from .key_derivation_service import derive_key
 from enum import IntEnum
 from models import Mac, CipherSuite, KeyDerivationParameters
-from .integrity_service import get_hmac_hash_size_in_bits, get_hmac_key_size_in_bits
+from .integrity_service import get_hmac_hash_size_in_bits, get_hmac_key_size_in_bits, generate_integrity_hash, verify_integrity
 from utilities import to_num_bytes
 
 class PackedCipherSuiteParametersIndex(IntEnum):
@@ -57,7 +57,12 @@ def decrypt(ciphertext, passphrase):
     hmac_key = combined_key[key_size_in_bytes : key_size_in_bytes+key_size_in_bytes]
 
     # authenticate
+    is_verified = verify_integrity(mac_alg, hmac_key, cipher_raw, salt_size_bytes, iv_size_bytes, block_size_in_bytes, header_size_in_bytes)
 
+    if not is_verified:
+        raise Exception("Authentication failed!")
+
+    iv = None
 
 
 
