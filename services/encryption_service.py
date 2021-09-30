@@ -7,6 +7,7 @@ from enum import IntEnum
 from models import Mac, CipherSuite, KeyDerivationParameters
 from .integrity_service import get_hmac_hash_size_in_bits, get_hmac_key_size_in_bits, generate_integrity_hash, verify_integrity
 from utilities import to_num_bytes
+from Crypto.Util.Padding import unpad
 
 class PackedCipherSuiteParametersIndex(IntEnum):
     EncryptionAlgorithmIndex = 0,
@@ -62,13 +63,12 @@ def decrypt(ciphertext, passphrase):
     if not is_verified:
         raise Exception("Authentication failed!")
 
-    iv = None
+    iv = bytes(cipher_raw[iv_offset: iv_offset+iv_size_bytes])
+    cipher_bytes = bytes(cipher_raw[cipher_offset: cipher_offset+cipher_length])
 
-
-
-    # cipher = AES.new(key, AES.MODE_CBC)
-    # cipher.iv = None
-
+    cipher = AES.new(cipher_key, AES.MODE_CBC, iv=iv)
+    raw_plaintext = cipher.decrypt(cipher_bytes)
+    plaintext = unpad(raw_plaintext, 16).decode("utf-8")
 
     return plaintext
 

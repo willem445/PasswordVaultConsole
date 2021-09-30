@@ -39,7 +39,18 @@ def authenticate(username, password, params) -> Tuple[AuthenticateResult, User]:
 
         ran_key = decrypt(user.encrypted_key, password)
 
-        # TODO - create valid User object with encryption parameters
+        user_result = User(user.unique_id,
+                           None,
+                           user.username,
+                           None,
+                           decrypt(user.firstname, ran_key),
+                           decrypt(user.lastname, ran_key),
+                           decrypt(user.phone_number, ran_key),
+                           decrypt(user.email, ran_key),
+                           user.sw_version,
+                           True,
+                           ran_key)
+
     else:
         authenticate_result = AuthenticateResult.PasswordIncorrect
 

@@ -25,12 +25,6 @@ def verify_integrity(mac: Mac, key: bytes, cipher: bytes, salt_size_bytes: int, 
     if (len(cipher) < min_len):
         raise Exception()
 
-    print(list(cipher))
-    print(list(cipher[0:header_size_bytes]))
-    print(list(cipher[salt_offset:salt_offset+salt_size_bytes]))
-    print(list(cipher[iv_offset:iv_offset+iv_size_bytes]))
-    print(list(cipher[cipher_offset:cipher_offset+cipher_len]))
-
     auth.update(cipher[0:header_size_bytes])
     auth.update(cipher[salt_offset:salt_offset+salt_size_bytes])
     auth.update(cipher[iv_offset:iv_offset+iv_size_bytes])
@@ -39,9 +33,6 @@ def verify_integrity(mac: Mac, key: bytes, cipher: bytes, salt_size_bytes: int, 
     out = [(auth.hexdigest()[i:i+n]) for i in range(0, len(auth.hexdigest()), n)]
     out = [int(out[i], 16) for i in range(0, len(out))]
     return cryptographic_equals(bytes(out), 0, cipher, auth_offset, auth_size_bytes)
-
-    
-
 
 def get_hmac(mac: Mac, hmac_key: bytes):
     digest = None
