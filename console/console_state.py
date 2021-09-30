@@ -1,5 +1,7 @@
+from models.password import Password
+from database.db_password import get_passwords_by_user_uuid
 from models import AuthenticateResult, LogoutResult, User
-from services import authenticate
+from services import authenticate, decrypt
 
 
 class ConsoleState(object):
@@ -15,7 +17,21 @@ class ConsoleState(object):
 
         if auth_result == AuthenticateResult.Successful:
             self._is_logged_in = user
-            self._current_user = None
+            self._current_user = user
+
+            raw_passwords = get_passwords_by_user_uuid(user.unique_id)
+            for raw_password in raw_passwords:
+                password = Password(
+                    raw_password.UniqueID,
+                    decrypt(raw_password.Application, user.plaintext_random_key),
+                    decrypt(raw_password.Username, user.plaintext_random_key),
+                    decrypt(raw_password.Email, user.plaintext_random_key),
+                    decrypt(raw_password.Description, user.plaintext_random_key),
+                    decrypt(raw_password.Website, user.plaintext_random_key),
+                    decrypt(raw_password.Category, user.plaintext_random_key),
+                    raw_password.Passphrase,
+                )
+                self._password_list.append(password)
         else:
             self._current_user = None
 
@@ -43,3 +59,6 @@ class ConsoleState(object):
             logged_in = True
 
         return logged_in
+
+    def find_password_by_application(self, application: str):
+        pass

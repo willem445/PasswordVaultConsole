@@ -59,6 +59,9 @@ def logout(session):
     elif result == LogoutResult.Success:
         print("Logged out.")
 
+def query_password(session, query_type: str):
+    pass
+
 def add_account(session):
     pass
 
@@ -94,6 +97,8 @@ def main():
                 add_password(session)
             elif commands[1] == 'account':
                 pass
+        elif commands[0] == 'query':
+            query_password(session, commands[1])
         elif commands[0] == 'exit':
             break
         else:
