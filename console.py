@@ -1,5 +1,6 @@
+import os
 import sys
-
+from typing import List
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit.styles import Style
@@ -17,6 +18,7 @@ completer = NestedCompleter.from_nested_dict({
         'get': {'password': None},
         'help': None,
         'exit': None,
+        'clear': None,
     }
 )
 
@@ -32,6 +34,7 @@ style = Style.from_dict(
 
 state = ConsoleState()
 
+clear_console = lambda: os.system('cls' if os.name in ('nt', 'dos') else 'clear')
 
 def login(session):
     username = session.prompt("Username: ")
@@ -79,6 +82,14 @@ def add_password(session):
     description = session.prompt("Description [blank to skip]: ")
     password = session.prompt("Password: ", is_password=True)
 
+def _combine_args(args: List[str], start_index: int):
+    combined_args = ""
+    for x in range(start_index, len(args)):
+        combined_args = combined_args + args[x] + " "
+    combined_args = combined_args.strip()
+    return combined_args
+
+
 def main():
     session = PromptSession(
         completer=completer, style=style
@@ -107,9 +118,13 @@ def main():
             query_password(session, commands[1], commands[2])
         elif commands[0] == 'get':
             if commands[1] == 'password':
-                get_password(session, commands[2])
+                combined = _combine_args(commands, 2)
+                get_password(session, combined)
         elif commands[0] == 'exit':
+            clear_console()
             break
+        elif commands[0] == 'clear':
+            clear_console()
         else:
             print("Unknown command!")
 

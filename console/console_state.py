@@ -64,16 +64,18 @@ class ConsoleState(object):
         found_passwords = []
 
         for password in self._password_list:
-            if application in password.application:
+            if application.lower() in password.application.lower():
                 found_passwords.append(password.application)
         return found_passwords
 
     def get_password_by_application(self, application: str):
         found_password = None
+        decrypted_password = ""
         for password in self._password_list:
-            if application == password.application:
+            if application.lower() == password.application.lower():
                 found_password = password
                 break
-        decrypted_password = decrypt(found_password.passphrase, self._current_user.plaintext_random_key)
+        if found_password is not None:
+            decrypted_password = decrypt(found_password.passphrase, self._current_user.plaintext_random_key)
         found_password = None
         return decrypted_password
