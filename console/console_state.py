@@ -1,3 +1,4 @@
+from services.encryption_service import encrypt
 from models.password import Password
 from database.db_password import get_passwords_by_user_uuid
 from models import AuthenticateResult, LogoutResult, User
@@ -59,6 +60,10 @@ class ConsoleState(object):
             logged_in = True
 
         return logged_in
+
+    def add_password(self, application, username, email, description, category, website, passphrase):
+        result = encrypt(passphrase, self._current_user.plaintext_random_key)
+        print(result)
 
     def find_password_by_application(self, application: str):
         found_passwords = []

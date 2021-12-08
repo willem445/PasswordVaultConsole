@@ -30,7 +30,6 @@ class LogoutResult(IntEnum):
     Success = 1,
     Failed = 2
 
-
 class UserEncryptedData(object):
 
     def __init__(self, alg: KeyDerivationAlgorithm, keysize: int, salt: str, saltsize: int, hash: str, iterations: int, degree_of_parallelism: int, memory_size: int, random_gen_key: str):
@@ -53,6 +52,15 @@ class KeyDerivationParameters(object):
         self.iterations = iterations
         self.degree_of_parallelism = degree_of_parallelism
         self.memory_size = memory_size
+
+class EncryptionParameters(object):
+
+    def __init__(self, cipher_suite: CipherSuite, mac: Mac, key_derivation_parameters: KeyDerivationParameters, block_size: int, iv_size: int):
+        self.cipher_suite = cipher_suite
+        self.mac = mac
+        self.key_derivation_parameters = key_derivation_parameters
+        self.block_size = block_size
+        self.iv_size = iv_size
 
 class MasterPasswordParameters(object):
 

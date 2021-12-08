@@ -9,7 +9,10 @@ def generate_integrity_hash(mac: Mac, key: bytes, suite_bytes: bytes, salt_bytes
     auth.update(salt_bytes)
     auth.update(iv_bytes)
     auth.update(cipher_bytes)
-    return auth.hexdigest()
+    n = 2
+    out = [(auth.hexdigest()[i:i+n]) for i in range(0, len(auth.hexdigest()), n)]
+    out = [int(out[i], 16) for i in range(0, len(out))]
+    return out
 
 def verify_integrity(mac: Mac, key: bytes, cipher: bytes, salt_size_bytes: int, iv_size_bytes: int, block_size_bytes: int, header_size_bytes: int) -> bool:
     auth = get_hmac(mac, key)

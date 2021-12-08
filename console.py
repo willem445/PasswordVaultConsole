@@ -31,7 +31,6 @@ style = Style.from_dict(
     }
 )
 
-
 state = ConsoleState()
 
 clear_console = lambda: os.system('cls' if os.name in ('nt', 'dos') else 'clear')
@@ -53,14 +52,14 @@ def login(session):
 
 # TODO - create "is_logged_in" decorator
 def logout(session):
-    result = state.logout()
-
     if not state.is_logged_in():
         print("Must login first!")
-    elif result == LogoutResult.Failed:
-        print("Logout failed!")
-    elif result == LogoutResult.Success:
-        print("Logged out.")
+    else:
+        result = state.logout()
+        if result == LogoutResult.Failed:
+            print("Logout failed!")
+        elif result == LogoutResult.Success:
+            print("Logged out.")
 
 def query_password(session, query_type: str, search_string: str):
     if query_type == 'application':
@@ -79,8 +78,11 @@ def add_password(session):
     username = session.prompt("Username: ")
     email = session.prompt("Email [blank to skip]: ")
     category = session.prompt("Category [blank to skip]: ")
+    website = session.prompt("Website [blank to skip]: ")
     description = session.prompt("Description [blank to skip]: ")
     password = session.prompt("Password: ", is_password=True)
+
+    state.add_password(application, username, email, description, category, website, password)
 
 def _combine_args(args: List[str], start_index: int):
     combined_args = ""
@@ -122,6 +124,7 @@ def main():
                 get_password(session, combined)
         elif commands[0] == 'exit':
             clear_console()
+            state = None
             break
         elif commands[0] == 'clear':
             clear_console()

@@ -13,3 +13,6 @@ def get_passwords_by_user_uuid(user_uuid: str):
             ).all()
     session.close()
     return passwords
+
+def add_password_to_db():
+    pass

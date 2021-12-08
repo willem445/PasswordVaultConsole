@@ -4,10 +4,10 @@ from Crypto.Random import get_random_bytes
 import base64
 from .key_derivation_service import derive_key
 from enum import IntEnum
-from models import Mac, CipherSuite, KeyDerivationParameters
+from models import Mac, CipherSuite, KeyDerivationParameters, KeyDerivationAlgorithm, EncryptionParameters
 from .integrity_service import get_hmac_hash_size_in_bits, get_hmac_key_size_in_bits, generate_integrity_hash, verify_integrity
 from utilities import to_num_bytes
-from Crypto.Util.Padding import unpad
+from Crypto.Util.Padding import unpad, pad
 
 class PackedCipherSuiteParametersIndex(IntEnum):
     EncryptionAlgorithmIndex = 0,
@@ -25,10 +25,34 @@ class PackedCipherSuiteParametersIndex(IntEnum):
 def encrypt(plaintext, passphrase):
 
     # TODO - generate key with argon2id
-    key = get_random_bytes(16)
+    salt = get_random_bytes(16)
     iv = get_random_bytes(16)
+    plaintext = plaintext.encode('utf-8')
 
-    cipher = AES.new(key, AES.MODE_CBC, iv=iv)
+    key_size_in_bytes = 32
+    hmac_size_in_bytes = 32
+
+    kdf_params = KeyDerivationParameters(KeyDerivationAlgorithm.Argon2Id, 0, 16, 10, 8, 1024 * 1024)
+    encryption_params = EncryptionParameters(CipherSuite.Aes256CbcPkcs7, Mac.HMACSHA256, kdf_params, 16, 16)
+    cipher_suite = pack_cipher_params_to_bytes(encryption_params)
+
+    combined_key = derive_key(passphrase, salt, kdf_params, key_size_in_bytes + hmac_size_in_bytes)
+    cipher_key = combined_key[0: key_size_in_bytes]
+    hmac_key = combined_key[key_size_in_bytes : key_size_in_bytes+key_size_in_bytes]
+
+    cipher = AES.new(cipher_key, AES.MODE_CBC, iv=iv)
+    cipher_bytes = cipher.encrypt(pad(plaintext, 16))
+
+    authenticate_hash = generate_integrity_hash(encryption_params.mac, hmac_key, cipher_suite, salt, iv, cipher_bytes)
+
+    combined = []
+    combined.extend(cipher_suite)
+    combined.extend(authenticate_hash)
+    combined.extend(salt)
+    combined.extend(iv)
+    combined.extend(cipher_bytes)
+
+    return base64.encodebytes(bytes(combined))
 
 def decrypt(ciphertext, passphrase):
     plaintext = None
@@ -72,6 +96,25 @@ def decrypt(ciphertext, passphrase):
 
     return plaintext
 
+def pack_cipher_params_to_bytes(params: EncryptionParameters):
+    packed_bytes = []
+
+    packed_bytes.append(params.cipher_suite)
+    packed_bytes.append(params.key_derivation_parameters.alg)
+    packed_bytes.append(params.key_derivation_parameters.iterations & 0xFF)
+    packed_bytes.append((params.key_derivation_parameters.iterations >> 8) & 0xFF)
+    packed_bytes.append((params.key_derivation_parameters.iterations >> 16) & 0xFF)
+    packed_bytes.append((params.key_derivation_parameters.iterations >> 24) & 0xFF)
+    packed_bytes.append(params.key_derivation_parameters.memory_size & 0xFF)
+    packed_bytes.append((params.key_derivation_parameters.memory_size >> 8) & 0xFF)
+    packed_bytes.append((params.key_derivation_parameters.memory_size >> 16) & 0xFF)
+    packed_bytes.append((params.key_derivation_parameters.memory_size >> 24) & 0xFF)
+    packed_bytes.append(params.key_derivation_parameters.degree_of_parallelism)
+    packed_bytes.append(params.mac)
+    packed_bytes.append(params.key_derivation_parameters.saltsize)
+    packed_bytes.append(params.iv_size)
+
+    return bytes(packed_bytes)
 
 def unpack_cipher_params(cipher_raw: bytes):
     
